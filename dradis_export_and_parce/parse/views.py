@@ -1,3 +1,4 @@
 from django.shortcuts import render
 
-# Create your views here.
+def parse_html_view():
+    pass
