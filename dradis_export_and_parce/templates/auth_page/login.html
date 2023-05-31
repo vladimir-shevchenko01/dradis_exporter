@@ -8,9 +8,14 @@
       Форма аутентификации dradis
     </div>
     <div class="card-body">
-<form method="post">
-  {% csrf_token %}
-     {% bootstrap_form form %}
-     {% bootstrap_button button_type="submit" content="Отправить" %}
-  </form>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {% bootstrap_field form.username %}
+        </div>
+        <div class="mb-3">
+            {% bootstrap_field form.password %}
+        </div>
+        {% bootstrap_button button_type="submit" content="Отправить" %}
+    </form>
 {% endblock %}

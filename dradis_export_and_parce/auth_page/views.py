@@ -1,17 +1,37 @@
+import requests
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
+from .forms import ExportForm
 
 from auth_page.forms import ExportForm
 
 
 def form_page(request):
-    form = ExportForm(
-        request.POST or None,)
+    if request.method == 'POST':
+        form = ExportForm(request.POST)
+        if form.is_valid():
+            # Authenticate with Dradis
+            url = 'https://dradis.passpointsecurity.com/pro/login'
+            data = {'username': 'email', 'password': 'password'}
+            response = requests.post(url, data=data)
+            auth_token = response.cookies.get('auth_token')
+            if auth_token is not None:
+                # Authenticate the user
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    # Login the user and redirect to the requested page
+                    login(request, user)
+                    return redirect('home')
+                else:
+                    form.add_error(None, "Invalid username or password")
+            else:
+                form.add_error(None, "Failed to authenticate with Dradis")
+    else:
+        form = ExportForm()
     context = {'form': form}
     return render(request, 'auth_page/login.html', context)
-
-
 
 
 def login_view(request):
